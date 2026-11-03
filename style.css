@@ -546,3 +546,9 @@ input[type="range"] {
         font-size: 9px;
     }
 }
+.site-logo {
+    width: 180px;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
