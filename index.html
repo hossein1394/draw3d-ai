@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRAW3D AI</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-icon">3D</div>
+            <div>
+                <h1>DRAW3D <span>AI</span></h1>
+                <small data-i18n="subtitle">استودیوی طراحی سه‌بعدی</small>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="top-status">
+                <span class="status-dot"></span>
+                <span data-i18n="ready">سیستم آماده است</span>
+            </div>
+
+            <select id="languageSelect" class="language-select" aria-label="Language">
+                <option value="fa">🇮🇷 فارسی</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="zh">🇨🇳 中文</option>
+                <option value="hi">🇮🇳 हिन्दी</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="ar">🇸🇦 العربية</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="pt">🇧🇷 Português</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="de">🇩🇪 Deutsch</option>
+            </select>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="welcome">
+            <div>
+                <h2 data-i18n="welcomeTitle">ایده‌ات را به دنیای سه‌بعدی تبدیل کن!</h2>
+                <p data-i18n="welcomeText">نقاشی کن، مدل بساز و از زاویه‌های مختلف تماشایش کن.</p>
+            </div>
+            <div class="welcome-badge">CREATIVE STUDIO</div>
+        </section>
+
+        <section class="studio-grid">
+
+            <!-- DRAWING PANEL -->
+            <section class="panel drawing-panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3 data-i18n="drawingTitle">بوم نقاشی</h3>
+                        <p data-i18n="drawingDescription">ایده خودت را اینجا رسم کن</p>
+                    </div>
+                    <span class="panel-number">01</span>
+                </div>
+
+                <div class="toolbar">
+                    <button id="penTool" class="tool-btn active" data-i18n="pen">✏️ قلم</button>
+                    <button id="eraserTool" class="tool-btn" data-i18n="eraser">🧽 پاک‌کن</button>
+                    <button id="undoBtn" class="tool-btn" title="Undo">↶</button>
+                    <button id="redoBtn" class="tool-btn" title="Redo">↷</button>
+                    <button id="clearBtn" class="tool-btn danger" data-i18n="clear">پاک کردن</button>
+                </div>
+
+                <div class="canvas-wrap">
+                    <canvas id="drawingCanvas" width="900" height="650"></canvas>
+                    <div class="canvas-label">DRAW HERE</div>
+                </div>
+
+                <div class="drawing-settings">
+                    <label>
+                        <span data-i18n="brushColor">رنگ قلم</span>
+                        <input type="color" id="brushColor" value="#20202b">
+                    </label>
+
+                    <label class="size-control">
+                        <span data-i18n="brushSize">اندازه قلم</span>
+                        <input type="range" id="brushSize" min="2" max="35" value="7">
+                        <span id="sizeValue">7</span>
+                    </label>
+                </div>
+
+                <div class="drawing-actions">
+                    <button id="downloadDrawing" class="secondary-btn" data-i18n="downloadDrawing">
+                        دانلود نقاشی
+                    </button>
+
+                    <button id="generateBtn" class="primary-btn" data-i18n="generate">
+                        ✨ ساخت مدل سه‌بعدی
+                    </button>
+                </div>
+
+                <p class="hint" data-i18n="drawingHint">
+                    برای نتیجه بهتر، نقاشی را با خطوط واضح و شکل‌های نسبتاً بزرگ بکش.
+                </p>
+
+            </section>
+
+            <!-- 3D PANEL -->
+            <section class="panel viewer-panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3 data-i18n="viewerTitle">محیط سه‌بعدی</h3>
+                        <p data-i18n="viewerDescription">مدل خودت را از هر زاویه بررسی کن</p>
+                    </div>
+                    <span class="panel-number">02</span>
+                </div>
+
+                <div class="viewer-toolbar">
+                    <button id="resetCamera" class="tool-btn" data-i18n="resetCamera">⟳ بازنشانی دوربین</button>
+                    <button id="rotateBtn" class="tool-btn" data-i18n="autoRotate">چرخش خودکار</button>
+                    <button id="downloadModel" class="tool-btn" data-i18n="downloadModel">دانلود GLB</button>
+                </div>
+
+                <div id="viewer">
+                    <div id="emptyMessage">
+                        <div class="empty-icon">◇</div>
+                        <h3 data-i18n="emptyTitle">هنوز مدلی ساخته نشده</h3>
+                        <p data-i18n="emptyText">اول نقاشی کن و روی ساخت مدل سه‌بعدی بزن.</p>
+                    </div>
+                </div>
+
+                <div class="camera-section">
+                    <div class="section-title">
+                        <h4 data-i18n="cameraTitle">زاویه دوربین</h4>
+                        <span>CAMERA VIEW</span>
+                    </div>
+
+                    <div class="camera-buttons">
+                        <button data-view="threeQuarter" class="camera-btn selected"
+                            data-i18n="threeQuarter">سه‌ربع</button>
+                        <button data-view="front" class="camera-btn" data-i18n="front">روبه‌رو</button>
+                        <button data-view="back" class="camera-btn" data-i18n="back">پشت</button>
+                        <button data-view="left" class="camera-btn" data-i18n="left">چپ</button>
+                        <button data-view="right" class="camera-btn" data-i18n="right">راست</button>
+                        <button data-view="top" class="camera-btn" data-i18n="top">بالا</button>
+                    </div>
+                </div>
+
+                <div class="camera-tip" data-i18n="cameraHint">
+                    🖱️ با کلیک چپ مدل را بچرخان. با چرخ ماوس زوم کن و با کلیک راست تصویر را جابه‌جا کن.
+                </div>
+
+                <div class="viewer-settings">
+
+                    <div class="section-title">
+                        <h4 data-i18n="settingsTitle">تنظیمات مدل</h4>
+                        <span>MODEL SETTINGS</span>
+                    </div>
+
+                    <div class="setting-row">
+                        <label for="modelColor" data-i18n="modelColor">رنگ مدل</label>
+                        <input type="color" id="modelColor" value="#7655ff">
+                    </div>
+
+                    <div class="setting-row">
+                        <label for="modelScale" data-i18n="modelScale">اندازه مدل</label>
+                        <input type="range" id="modelScale" min="0.5" max="3" step="0.1" value="1">
+                        <span id="scaleValue">1</span>
+                    </div>
+
+                    <div class="setting-row">
+                        <label for="brightness" data-i18n="brightness">روشنایی</label>
+                        <input type="range" id="brightness" min="0.3" max="2.5" step="0.1" value="1.2">
+                        <span id="brightnessValue">1.2</span>
+                    </div>
+
+                    <div class="setting-row">
+                        <label for="modelOrientation" data-i18n="orientation">جهت مدل</label>
+                        <select id="modelOrientation">
+                            <option value="upright" data-i18n="upright">ایستاده</option>
+                            <option value="flat" data-i18n="flat">خوابیده</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-row">
+                        <label for="modelDepth" data-i18n="thickness">ضخامت مدل</label>
+                        <input type="range" id="modelDepth" min="1" max="8" value="3">
+                        <span id="depthValue">3</span>
+                    </div>
+
+                    <div class="setting-row quality-row">
+                        <label for="quality" data-i18n="quality">کیفیت جزئیات</label>
+                        <select id="quality">
+                            <option value="15" data-i18n="qualityLow">سبک</option>
+                            <option value="9" selected data-i18n="qualityMedium">متعادل</option>
+                            <option value="6" data-i18n="qualityHigh">زیاد</option>
+                            <option value="4" data-i18n="qualityUltra">فوق‌العاده</option>
+                        </select>
+                    </div>
+
+                    <div class="quality-info" data-i18n="qualityHint">
+                        کیفیت بالاتر، جزئیات بیشتری می‌سازد اما ممکن است سرعت را کاهش دهد.
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="footer">
+            <span>DRAW3D AI</span>
+            <span>CREATE • DESIGN • EXPLORE</span>
+        </footer>
+
+    </main>
+
+    <script type="module">
+
+        import * as THREE from "three";
+        import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+        import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
+
+        /* =================================
+           ترجمه ۱۰ زبان
+        ================================= */
+
+        const translations = {
+
+            fa: {
+                subtitle: "استودیوی طراحی سه‌بعدی",
+                ready: "سیستم آماده است",
+                welcomeTitle: "ایده‌ات را به دنیای سه‌بعدی تبدیل کن!",
+                welcomeText: "نقاشی کن، مدل بساز و از زاویه‌های مختلف تماشایش کن.",
+                drawingTitle: "بوم نقاشی",
+                drawingDescription: "ایده خودت را اینجا رسم کن",
+                pen: "✏️ قلم",
+                eraser: "🧽 پاک‌کن",
+                clear: "پاک کردن",
+                brushColor: "رنگ قلم",
+                brushSize: "اندازه قلم",
+                downloadDrawing: "دانلود نقاشی",
+                generate: "✨ ساخت مدل سه‌بعدی",
+                drawingHint: "برای نتیجه بهتر، نقاشی را با خطوط واضح و شکل‌های نسبتاً بزرگ بکش.",
+                viewerTitle: "محیط سه‌بعدی",
+                viewerDescription: "مدل خودت را از هر زاویه بررسی کن",
+                resetCamera: "⟳ بازنشانی دوربین",
+                autoRotate: "چرخش خودکار",
+                downloadModel: "دانلود GLB",
+                emptyTitle: "هنوز مدلی ساخته نشده",
+                emptyText: "اول نقاشی کن و روی ساخت مدل سه‌بعدی بزن.",
+                cameraTitle: "زاویه دوربین",
+                threeQuarter: "سه‌ربع",
+                front: "روبه‌رو",
+                back: "پشت",
+                left: "چپ",
+                right: "راست",
+                top: "بالا",
+                cameraHint: "🖱️ با کلیک چپ مدل را بچرخان. با چرخ ماوس زوم کن و با کلیک راست تصویر را جابه‌جا کن.",
+                settingsTitle: "تنظیمات مدل",
+                modelColor: "رنگ مدل",
+                modelScale: "اندازه مدل",
+                brightness: "روشنایی",
+                orientation: "جهت مدل",
+                upright: "ایستاده",
+                flat: "خوابیده",
+                thickness: "ضخامت مدل",
+                quality: "کیفیت جزئیات",
+                qualityLow: "سبک",
+                qualityMedium: "متعادل",
+                qualityHigh: "زیاد",
+                qualityUltra: "فوق‌العاده",
+                qualityHint: "کیفیت بالاتر، جزئیات بیشتری می‌سازد اما ممکن است سرعت را کاهش دهد."
+            },
+
+            en: {
+                subtitle: "3D Design Studio",
+                ready: "System Ready",
+                welcomeTitle: "Turn your ideas into 3D!",
+                welcomeText: "Draw, create a model and explore it from different angles.",
+                drawingTitle: "Drawing Canvas",
+                drawingDescription: "Draw your idea here",
+                pen: "✏️ Pen",
+                eraser: "🧽 Eraser",
+                clear: "Clear",
+                brushColor: "Brush Color",
+                brushSize: "Brush Size",
+                downloadDrawing: "Download Drawing",
+                generate: "✨ Generate 3D Model",
+                drawingHint: "Use clear lines and relatively large shapes for better results.",
+                viewerTitle: "3D Viewport",
+                viewerDescription: "Explore your model from every angle",
+                resetCamera: "⟳ Reset Camera",
+                autoRotate: "Auto Rotate",
+                downloadModel: "Download GLB",
+                emptyTitle: "No model created yet",
+                emptyText: "Draw something and click Generate 3D Model.",
+                cameraTitle: "Camera Angle",
+                threeQuarter: "3/4 View",
+                front: "Front",
+                back: "Back",
+                left: "Left",
+                right: "Right",
+                top: "Top",
+                cameraHint: "🖱️ Drag to rotate, scroll to zoom and right-drag to pan.",
+                settingsTitle: "Model Settings",
+                modelColor: "Model Color",
+                modelScale: "Model Scale",
+                brightness: "Brightness",
+                orientation: "Orientation",
+                upright: "Upright",
+                flat: "Flat",
+                thickness: "Thickness",
+                quality: "Detail Quality",
+                qualityLow: "Low",
+                qualityMedium: "Balanced",
+                qualityHigh: "High",
+                qualityUltra: "Ultra",
+                qualityHint: "Higher quality adds more details but may reduce performance."
+            },
+
+            zh: {
+                subtitle: "3D设计工作室",
+                ready: "系统已就绪",
+                welcomeTitle: "把你的想法变成3D！",
+                welcomeText: "绘画、创建模型并从不同角度查看。",
+                drawingTitle: "绘画画布",
+                drawingDescription: "在这里画出你的想法",
+                pen: "✏️ 画笔",
+                eraser: "🧽 橡皮擦",
+                clear: "清除",
+                brushColor: "画笔颜色",
+                brushSize: "画笔大小",
+                downloadDrawing: "下载绘画",
+                generate: "✨ 生成3D模型",
+                drawingHint: "使用清晰的线条和较大的形状。",
+                viewerTitle: "3D视图",
+                viewerDescription: "从不同角度查看模型",
+                resetCamera: "⟳ 重置摄像机",
+                autoRotate: "自动旋转",
+                downloadModel: "下载GLB",
+                emptyTitle: "尚未创建模型",
+                emptyText: "先绘画，然后点击生成3D模型。",
+                cameraTitle: "摄像机角度",
+                threeQuarter: "四分之三视角",
+                front: "正面",
+                back: "背面",
+                left: "左侧",
+                right: "右侧",
+                top: "顶部",
+                cameraHint: "🖱️ 拖动旋转，滚轮缩放，右键拖动平移。",
+                settingsTitle: "模型设置",
+                modelColor: "模型颜色",
+                modelScale: "模型大小",
+                brightness: "亮度",
+                orientation: "方向",
+                upright: "竖直",
+                flat: "平放",
+                thickness: "厚度",
+                quality: "细节质量",
+                qualityLow: "低",
+                qualityMedium: "平衡",
+                qualityHigh: "高",
+                qualityUltra: "超高",
+                qualityHint: "更高的质量会增加细节，但可能降低速度。"
+            },
+
+            hi: {
+                subtitle: "3D डिजाइन स्टूडियो",
+                ready: "सिस्टम तैयार है",
+                welcomeTitle: "अपने विचारों को 3D में बदलें!",
+                welcomeText: "चित्र बनाएं और अपने मॉडल को अलग-अलग कोणों से देखें।",
+                drawingTitle: "ड्रॉइंग कैनवास",
+                drawingDescription: "यहाँ अपना विचार बनाएं",
+                pen: "✏️ पेन",
+                eraser: "🧽 इरेज़र",
+                clear: "साफ़ करें",
+                brushColor: "ब्रश का रंग",
+                brushSize: "ब्रश का आकार",
+                downloadDrawing: "चित्र डाउनलोड करें",
+                generate: "✨ 3D मॉडल बनाएं",
+                drawingHint: "बेहतर परिणाम के लिए साफ़ और बड़े आकार बनाएं।",
+                viewerTitle: "3D दृश्य",
+                viewerDescription: "अपने मॉडल को अलग-अलग कोणों से देखें",
+                resetCamera: "⟳ कैमरा रीसेट करें",
+                autoRotate: "ऑटो रोटेशन",
+                downloadModel: "GLB डाउनलोड करें",
+                emptyTitle: "अभी कोई मॉडल नहीं है",
+                emptyText: "पहले चित्र बनाएं और फिर 3D मॉडल बनाएं।",
+                cameraTitle: "कैमरा कोण",
+                threeQuarter: "तीन-चौथाई",
+                front: "सामने",
+                back: "पीछे",
+                left: "बायाँ",
+                right: "दायाँ",
+                top: "ऊपर",
+                cameraHint: "🖱️ घुमाने के लिए खींचें, ज़ूम के लिए स्क्रॉल करें।",
+                settingsTitle: "मॉडल सेटिंग्स",
+                modelColor: "मॉडल का रंग",
+                modelScale: "मॉडल का आकार",
+                brightness: "चमक",
+                orientation: "दिशा",
+                upright: "सीधा",
+                flat: "समतल",
+                thickness: "मोटाई",
+                quality: "विवरण गुणवत्ता",
+                qualityLow: "कम",
+                qualityMedium: "संतुलित",
+                qualityHigh: "उच्च",
+                qualityUltra: "अति उच्च",
+                qualityHint: "उच्च गुणवत्ता अधिक विवरण देती है लेकिन गति कम कर सकती है।"
+            },
+
+            es: {
+                subtitle: "Estudio de diseño 3D",
+                ready: "Sistema listo",
+                welcomeTitle: "¡Convierte tus ideas en 3D!",
+                welcomeText: "Dibuja, crea modelos y explóralos desde distintos ángulos.",
+                drawingTitle: "Lienzo de dibujo",
+                drawingDescription: "Dibuja tu idea aquí",
+                pen: "✏️ Lápiz",
+                eraser: "🧽 Borrador",
+                clear: "Limpiar",
+                brushColor: "Color del lápiz",
+                brushSize: "Tamaño del lápiz",
+                downloadDrawing: "Descargar dibujo",
+                generate: "✨ Crear modelo 3D",
+                drawingHint: "Usa líneas claras y formas grandes para mejores resultados.",
+                viewerTitle: "Vista 3D",
+                viewerDescription: "Explora tu modelo desde cualquier ángulo",
+                resetCamera: "⟳ Restablecer cámara",
+                autoRotate: "Rotación automática",
+                downloadModel: "Descargar GLB",
+                emptyTitle: "Todavía no hay ningún modelo",
+                emptyText: "Dibuja algo y pulsa Crear modelo 3D.",
+                cameraTitle: "Ángulo de cámara",
+                threeQuarter: "Tres cuartos",
+                front: "Frente",
+                back: "Atrás",
+                left: "Izquierda",
+                right: "Derecha",
+                top: "Arriba",
+                cameraHint: "🖱️ Arrastra para girar, desplázate para ampliar y usa el botón derecho para mover.",
+                settingsTitle: "Ajustes del modelo",
+                modelColor: "Color del modelo",
+                modelScale: "Escala del modelo",
+                brightness: "Brillo",
+                orientation: "Orientación",
+                upright: "Vertical",
+                flat: "Horizontal",
+                thickness: "Grosor",
+                quality: "Calidad de detalle",
+                qualityLow: "Baja",
+                qualityMedium: "Equilibrada",
+                qualityHigh: "Alta",
+                qualityUltra: "Ultra",
+                qualityHint: "Una calidad mayor añade detalles, pero puede reducir el rendimiento."
+            },
+
+            ar: {
+                subtitle: "استوديو التصميم ثلاثي الأبعاد",
+                ready: "النظام جاهز",
+                welcomeTitle: "حوّل أفكارك إلى عالم ثلاثي الأبعاد!",
+                welcomeText: "ارسم وأنشئ نموذجاً واستكشفه من زوايا مختلفة.",
+                drawingTitle: "لوحة الرسم",
+                drawingDescription: "ارسم فكرتك هنا",
+                pen: "✏️ قلم",
+                eraser: "🧽 ممحاة",
+                clear: "مسح",
+                brushColor: "لون القلم",
+                brushSize: "حجم القلم",
+                downloadDrawing: "تنزيل الرسم",
+                generate: "✨ إنشاء نموذج ثلاثي الأبعاد",
+                drawingHint: "استخدم خطوطاً واضحة وأشكالاً كبيرة للحصول على نتائج أفضل.",
+                viewerTitle: "العرض ثلاثي الأبعاد",
+                viewerDescription: "استكشف النموذج من جميع الزوايا",
+                resetCamera: "⟳ إعادة ضبط الكاميرا",
+                autoRotate: "تدوير تلقائي",
+                downloadModel: "تنزيل GLB",
+                emptyTitle: "لم يتم إنشاء نموذج بعد",
+                emptyText: "ارسم شيئاً ثم اضغط على إنشاء نموذج ثلاثي الأبعاد.",
+                cameraTitle: "زاوية الكاميرا",
+                threeQuarter: "ثلاثة أرباع",
+                front: "الأمام",
+                back: "الخلف",
+                left: "اليسار",
+                right: "اليمين",
+                top: "الأعلى",
+                cameraHint: "🖱️ اسحب للتدوير واستخدم عجلة الفأرة للتكبير.",
+                settingsTitle: "إعدادات النموذج",
+                modelColor: "لون النموذج",
+                modelScale: "حجم النموذج",
+                brightness: "الإضاءة",
+                orientation: "الاتجاه",
+                upright: "عمودي",
+                flat: "أفقي",
+                thickness: "السماكة",
+                quality: "جودة التفاصيل",
+                qualityLow: "منخفضة",
+                qualityMedium: "متوازنة",
+                qualityHigh: "عالية",
+                qualityUltra: "فائقة",
+                qualityHint: "الجودة الأعلى تضيف تفاصيل أكثر وقد تقلل السرعة."
+            },
+
+            fr: {
+                subtitle: "Studio de conception 3D",
+                ready: "Système prêt",
+                welcomeTitle: "Transformez vos idées en 3D !",
+                welcomeText: "Dessinez, créez un modèle et explorez-le sous différents angles.",
+                drawingTitle: "Toile de dessin",
+                drawingDescription: "Dessinez votre idée ici",
+                pen: "✏️ Crayon",
+                eraser: "🧽 Gomme",
+                clear: "Effacer",
+                brushColor: "Couleur du crayon",
+                brushSize: "Taille du crayon",
+                downloadDrawing: "Télécharger le dessin",
+                generate: "✨ Créer un modèle 3D",
+                drawingHint: "Utilisez des lignes claires et des formes assez grandes.",
+                viewerTitle: "Vue 3D",
+                viewerDescription: "Explorez votre modèle sous tous les angles",
+                resetCamera: "⟳ Réinitialiser la caméra",
+                autoRotate: "Rotation automatique",
+                downloadModel: "Télécharger GLB",
+                emptyTitle: "Aucun modèle créé",
+                emptyText: "Dessinez quelque chose puis cliquez sur Créer un modèle 3D.",
+                cameraTitle: "Angle de caméra",
+                threeQuarter: "Trois-quarts",
+                front: "Face",
+                back: "Arrière",
+                left: "Gauche",
+                right: "Droite",
+                top: "Dessus",
+                cameraHint: "🖱️ Faites glisser pour tourner et utilisez la molette pour zoomer.",
+                settingsTitle: "Paramètres du modèle",
+                modelColor: "Couleur du modèle",
+                modelScale: "Taille du modèle",
+                brightness: "Luminosité",
+                orientation: "Orientation",
+                upright: "Vertical",
+                flat: "À plat",
+                thickness: "Épaisseur",
+                quality: "Qualité des détails",
+                qualityLow: "Faible",
+                qualityMedium: "Équilibrée",
+                qualityHigh: "Élevée",
+                qualityUltra: "Ultra",
+                qualityHint: "Une qualité supérieure ajoute des détails mais peut ralentir le système."
+            },
+
+            pt: {
+                subtitle: "Estúdio de design 3D",
+                ready: "Sistema pronto",
+                welcomeTitle: "Transforme suas ideias em 3D!",
+                welcomeText: "Desenhe, crie modelos e explore de diferentes ângulos.",
+                drawingTitle: "Tela de desenho",
+                drawingDescription: "Desenhe sua ideia aqui",
+                pen: "✏️ Caneta",
+                eraser: "🧽 Borracha",
+                clear: "Limpar",
+                brushColor: "Cor da caneta",
+                brushSize: "Tamanho da caneta",
+                downloadDrawing: "Baixar desenho",
+                generate: "✨ Criar modelo 3D",
+                drawingHint: "Use linhas claras e formas grandes para melhores resultados.",
+                viewerTitle: "Visualização 3D",
+                viewerDescription: "Explore seu modelo de todos os ângulos",
+                resetCamera: "⟳ Redefinir câmera",
+                autoRotate: "Rotação automática",
+                downloadModel: "Baixar GLB",
+                emptyTitle: "Nenhum modelo criado",
+                emptyText: "Desenhe algo e clique em Criar modelo 3D.",
+                cameraTitle: "Ângulo da câmera",
+                threeQuarter: "Três quartos",
+                front: "Frente",
+                back: "Trás",
+                left: "Esquerda",
+                right: "Direita",
+                top: "Topo",
+                cameraHint: "🖱️ Arraste para girar e use a roda para ampliar.",
+                settingsTitle: "Configurações do modelo",
+                modelColor: "Cor do modelo",
+                modelScale: "Escala do modelo",
+                brightness: "Brilho",
+                orientation: "Orientação",
+                upright: "Vertical",
+                flat: "Plano",
+                thickness: "Espessura",
+                quality: "Qualidade dos detalhes",
+                qualityLow: "Baixa",
+                qualityMedium: "Equilibrada",
+                qualityHigh: "Alta",
+                qualityUltra: "Ultra",
+                qualityHint: "Qualidade maior adiciona detalhes, mas pode reduzir a velocidade."
+            },
+
+            ru: {
+                subtitle: "Студия 3D-дизайна",
+                ready: "Система готова",
+                welcomeTitle: "Превратите свои идеи в 3D!",
+                welcomeText: "Рисуйте, создавайте модели и изучайте их с разных сторон.",
+                drawingTitle: "Холст для рисования",
+                drawingDescription: "Нарисуйте свою идею здесь",
+                pen: "✏️ Карандаш",
+                eraser: "🧽 Ластик",
+                clear: "Очистить",
+                brushColor: "Цвет карандаша",
+                brushSize: "Размер кисти",
+                downloadDrawing: "Скачать рисунок",
+                generate: "✨ Создать 3D-модель",
+                drawingHint: "Используйте чёткие линии и достаточно большие формы.",
+                viewerTitle: "3D-просмотр",
+                viewerDescription: "Изучайте модель со всех сторон",
+                resetCamera: "⟳ Сбросить камеру",
+                autoRotate: "Автоповорот",
+                downloadModel: "Скачать GLB",
+                emptyTitle: "Модель ещё не создана",
+                emptyText: "Сначала нарисуйте что-нибудь и нажмите Создать 3D-модель.",
+                cameraTitle: "Угол камеры",
+                threeQuarter: "Три четверти",
+                front: "Спереди",
+                back: "Сзади",
+                left: "Слева",
+                right: "Справа",
+                top: "Сверху",
+                cameraHint: "🖱️ Перетаскивайте для поворота, колесо для увеличения.",
+                settingsTitle: "Настройки модели",
+                modelColor: "Цвет модели",
+                modelScale: "Размер модели",
+                brightness: "Яркость",
+                orientation: "Ориентация",
+                upright: "Вертикально",
+                flat: "Горизонтально",
+                thickness: "Толщина",
+                quality: "Качество деталей",
+                qualityLow: "Низкое",
+                qualityMedium: "Сбалансированное",
+                qualityHigh: "Высокое",
+                qualityUltra: "Ультра",
+                qualityHint: "Высокое качество добавляет детали, но может снизить скорость."
+            },
+
+            de: {
+                subtitle: "3D-Designstudio",
+                ready: "System bereit",
+                welcomeTitle: "Verwandle deine Ideen in 3D!",
+                welcomeText: "Zeichne, erstelle Modelle und erkunde sie aus verschiedenen Blickwinkeln.",
+                drawingTitle: "Zeichenfläche",
+                drawingDescription: "Zeichne hier deine Idee",
+                pen: "✏️ Stift",
+                eraser: "🧽 Radierer",
+                clear: "Löschen",
+                brushColor: "Stiftfarbe",
+                brushSize: "Pinselgröße",
+                downloadDrawing: "Zeichnung herunterladen",
+                generate: "✨ 3D-Modell erstellen",
+                drawingHint: "Verwende klare Linien und ausreichend große Formen.",
+                viewerTitle: "3D-Ansicht",
+                viewerDescription: "Erkunde dein Modell aus jedem Winkel",
+                resetCamera: "⟳ Kamera zurücksetzen",
+                autoRotate: "Automatische Drehung",
+                downloadModel: "GLB herunterladen",
+                emptyTitle: "Noch kein Modell erstellt",
+                emptyText: "Zeichne etwas und klicke auf 3D-Modell erstellen.",
+                cameraTitle: "Kamerawinkel",
+                threeQuarter: "Dreiviertel",
+                front: "Vorne",
+                back: "Hinten",
+                left: "Links",
+                right: "Rechts",
+                top: "Oben",
+                cameraHint: "🖱️ Ziehen zum Drehen, Mausrad zum Zoomen.",
+                settingsTitle: "Modelleinstellungen",
+                modelColor: "Modellfarbe",
+                modelScale: "Modellgröße",
+                brightness: "Helligkeit",
+                orientation: "Ausrichtung",
+                upright: "Aufrecht",
+                flat: "Flach",
+                thickness: "Dicke",
+                quality: "Detailqualität",
+                qualityLow: "Niedrig",
+                qualityMedium: "Ausgewogen",
+                qualityHigh: "Hoch",
+                qualityUltra: "Ultra",
+                qualityHint: "Höhere Qualität fügt Details hinzu, kann aber die Leistung verringern."
+            }
+
+        };
+
+        /* اعمال زبان */
+
+        const languageSelect = document.getElementById("languageSelect");
+
+        function applyLanguage(language) {
+            const dictionary = translations[language] || translations.en;
+
+            document.documentElement.lang = language;
+            document.documentElement.dir = language === "fa" || language === "ar" ? "rtl" : "ltr";
+
+            document.querySelectorAll("[data-i18n]").forEach(element => {
+                const key = element.dataset.i18n;
+
+                if (dictionary[key]) {
+                    element.textContent = dictionary[key];
+                }
+            });
+
+            localStorage.setItem("draw3d-language", language);
+        }
+
+        const savedLanguage = localStorage.getItem("draw3d-language") || "fa";
+        languageSelect.value = savedLanguage;
+        applyLanguage(savedLanguage);
+
+        languageSelect.addEventListener("change", () => {
+            applyLanguage(languageSelect.value);
+        });
+
+        /* =================================
+           بوم نقاشی
+        ================================= */
+
+        const canvas = document.getElementById("drawingCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let isDrawing = false;
+        let isErasing = false;
+        let lastPoint = null;
+
+        let history = [];
+        let historyIndex = -1;
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        function saveHistory() {
+            history = history.slice(0, historyIndex + 1);
+            history.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+            if (history.length > 25) history.shift();
+
+            historyIndex = history.length - 1;
+        }
+
+        saveHistory();
+
+        function getCanvasPoint(event) {
+            const rect = canvas.getBoundingClientRect();
+
+            return {
+                x: (event.clientX - rect.left) * canvas.width / rect.width,
+                y: (event.clientY - rect.top) * canvas.height / rect.height
+            };
+        }
+
+        canvas.addEventListener("pointerdown", event => {
+            isDrawing = true;
+            lastPoint = getCanvasPoint(event);
+            canvas.setPointerCapture(event.pointerId);
+        });
+
+        canvas.addEventListener("pointermove", event => {
+            if (!isDrawing) return;
+
+            const point = getCanvasPoint(event);
+
+            ctx.beginPath();
+            ctx.moveTo(lastPoint.x, lastPoint.y);
+            ctx.lineTo(point.x, point.y);
+
+            ctx.lineWidth = Number(brushSize.value);
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            ctx.globalCompositeOperation = isErasing
+                ? "destination-out"
+                : "source-over";
+
+            ctx.strokeStyle = isErasing ? "rgba(0,0,0,1)" : brushColor.value;
+            ctx.stroke();
+
+            lastPoint = point;
+        });
+
+        function stopDrawing() {
+            if (!isDrawing) return;
+
+            isDrawing = false;
+            lastPoint = null;
+            ctx.globalCompositeOperation = "source-over";
+            saveHistory();
+        }
+
+        canvas.addEventListener("pointerup", stopDrawing);
+        canvas.addEventListener("pointercancel", stopDrawing);
+
+        document.getElementById("penTool").addEventListener("click", () => {
+            isErasing = false;
+            document.getElementById("penTool").classList.add("active");
+            document.getElementById("eraserTool").classList.remove("active");
+        });
+
+        document.getElementById("eraserTool").addEventListener("click", () => {
+            isErasing = true;
+            document.getElementById("eraserTool").classList.add("active");
+            document.getElementById("penTool").classList.remove("active");
+        });
+
+        document.getElementById("undoBtn").addEventListener("click", () => {
+            if (historyIndex <= 0) return;
+
+            historyIndex--;
+            ctx.putImageData(history[historyIndex], 0, 0);
+        });
+
+        document.getElementById("redoBtn").addEventListener("click", () => {
+            if (historyIndex >= history.length - 1) return;
+
+            historyIndex++;
+            ctx.putImageData(history[historyIndex], 0, 0);
+        });
+
+        document.getElementById("clearBtn").addEventListener("click", () => {
+            ctx.globalCompositeOperation = "source-over";
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            saveHistory();
+        });
+
+        document.getElementById("downloadDrawing").addEventListener("click", () => {
+            const link = document.createElement("a");
+            link.download = "drawing.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+
+        document.getElementById("sizeValue").textContent = brushSize.value;
+
+        brushSize.addEventListener("input", () => {
+            document.getElementById("sizeValue").textContent = brushSize.value;
+        });
+
+        /* =================================
+           محیط سه‌بعدی
+        ================================= */
+
+        const viewer = document.getElementById("viewer");
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color("#10101d");
+
+        const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
+
+        /* زاویه شروع سه‌ربع */
+
+        camera.position.set(7, 6, 9);
+
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            powerPreference: "high-performance"
+        });
+
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+        viewer.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+
+        controls.target.set(0, 1.5, 0);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.07;
+        controls.enablePan = true;
+        controls.enableZoom = true;
+        controls.zoomSpeed = 0.8;
+        controls.rotateSpeed = 0.65;
+        controls.minDistance = 3;
+        controls.maxDistance = 30;
+        controls.minPolarAngle = 0.05;
+        controls.maxPolarAngle = Math.PI - 0.05;
+
+        controls.update();
+
+        /* نورها */
+
+        const ambientLight = new THREE.AmbientLight("#ffffff", 1.2);
+        scene.add(ambientLight);
+
+        const mainLight = new THREE.DirectionalLight("#ffffff", 2.3);
+        mainLight.position.set(7, 12, 8);
+        mainLight.castShadow = true;
+        scene.add(mainLight);
+
+        const fillLight = new THREE.PointLight("#7655ff", 35, 30);
+        fillLight.position.set(-7, 5, -5);
+        scene.add(fillLight);
+
+        /* زمین */
+
+        const floor = new THREE.Mesh(
+            new THREE.PlaneGeometry(200, 200),
+            new THREE.MeshStandardMaterial({
+                color: "#171725",
+                roughness: 0.9
+            })
+        );
+
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.05;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        const grid = new THREE.GridHelper(30, 30, "#7655ff", "#33334a");
+        scene.add(grid);
+
+        /* تنظیم اندازه نمایشگر */
+
+        function resizeViewer() {
+            const width = viewer.clientWidth;
+            const height = viewer.clientHeight;
+
+            if (!width || !height) return;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        const resizeObserver = new ResizeObserver(resizeViewer);
+        resizeObserver.observe(viewer);
+        resizeViewer();
+
+        /* =================================
+           زاویه‌های دوربین
+        ================================= */
+
+        const cameraViews = {
+            threeQuarter: new THREE.Vector3(7, 6, 9),
+            front: new THREE.Vector3(0, 2, 13),
+            back: new THREE.Vector3(0, 2, -13),
+            left: new THREE.Vector3(-13, 2, 0),
+            right: new THREE.Vector3(13, 2, 0),
+            top: new THREE.Vector3(0, 15, 0.01)
+        };
+
+        function setCameraView(view) {
+            const position = cameraViews[view];
+
+            if (!position) return;
+
+            camera.position.copy(position);
+            controls.target.set(0, 1.5, 0);
+            controls.update();
+
+            document.querySelectorAll(".camera-btn").forEach(button => {
+                button.classList.toggle(
+                    "selected",
+                    button.dataset.view === view
+                );
+            });
+        }
+
+        document.querySelectorAll(".camera-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                setCameraView(button.dataset.view);
+            });
+        });
+
+        document.getElementById("resetCamera").addEventListener("click", () => {
+            setCameraView("threeQuarter");
+        });
+
+        let autoRotate = false;
+
+        document.getElementById("rotateBtn").addEventListener("click", event => {
+            autoRotate = !autoRotate;
+            controls.autoRotate = autoRotate;
+            controls.autoRotateSpeed = 1.2;
+            event.currentTarget.classList.toggle("active", autoRotate);
+        });
+
+        /* =================================
+           تولید مدل با جزئیات قابل تنظیم
+        ================================= */
+
+        let currentModel = null;
+
+        function removeCurrentModel() {
+            if (!currentModel) return;
+
+            scene.remove(currentModel);
+
+            currentModel.traverse(child => {
+                if (child.geometry) child.geometry.dispose();
+
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(material => material.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+
+            currentModel = null;
+        }
+
+        function create3DModel() {
+            const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = image.data;
+
+            const points = [];
+
+            const resolution = Number(document.getElementById("quality").value);
+            const maxPoints = 20000;
+            const step = resolution;
+
+            for (let y = 0; y < canvas.height; y += step) {
+                for (let x = 0; x < canvas.width; x += step) {
+                    const index = (y * canvas.width + x) * 4;
+
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+
+                    if (r < 238 || g < 238 || b < 238) {
+                        points.push({ x, y });
+
+                        if (points.length >= maxPoints) break;
+                    }
+                }
+
+                if (points.length >= maxPoints) break;
+            }
+
+            if (points.length === 0) {
+                alert("اول یک نقاشی بکش!");
+                return;
+            }
+
+            removeCurrentModel();
+
+            const width = 7;
+            const height = 5;
+            const depth = Number(document.getElementById("modelDepth").value) * 0.12;
+
+            const isUpright = modelOrientation.value === "upright";
+
+            const cellWidth = width * step / canvas.width;
+            const cellHeight = height * step / canvas.height;
+
+            const geometry = isUpright
+                ? new THREE.BoxGeometry(cellWidth, cellHeight, depth)
+                : new THREE.BoxGeometry(cellWidth, depth, cellHeight);
+
+            const material = new THREE.MeshStandardMaterial({
+                color: modelColor.value,
+                roughness: 0.6,
+                metalness: 0.08,
+                emissive: modelColor.value,
+                emissiveIntensity: 0.05
+            });
+
+            const mesh = new THREE.InstancedMesh(
+                geometry,
+                material,
+                points.length
+            );
+
+            const dummy = new THREE.Object3D();
+
+            points.forEach((point, index) => {
+                const x = (point.x / canvas.width - 0.5) * width;
+                const y = (0.5 - point.y / canvas.height) * height;
+
+                if (isUpright) {
+                    dummy.position.set(x, y + height / 2, 0);
+                } else {
+                    dummy.position.set(x, 0.08, -y);
+                }
+
+                dummy.updateMatrix();
+                mesh.setMatrixAt(index, dummy.matrix);
+            });
+
+            mesh.instanceMatrix.needsUpdate = true;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            const group = new THREE.Group();
+            group.add(mesh);
+
+            scene.add(group);
+            currentModel = group;
+
+            document.getElementById("emptyMessage").style.display = "none";
+
+            updateModelSettings();
+            setCameraView("threeQuarter");
+        }
+
+        document.getElementById("generateBtn").addEventListener("click", create3DModel);
+
+        /* =================================
+           تنظیمات مدل
+        ================================= */
+
+        function updateModelSettings() {
+            if (!currentModel) return;
+
+            currentModel.scale.setScalar(Number(modelScale.value));
+
+            currentModel.traverse(child => {
+                if (!child.isInstancedMesh) return;
+
+                child.material.color.set(modelColor.value);
+                child.material.emissive.set(modelColor.value);
+                child.material.emissiveIntensity = Number(brightness.value) * 0.05;
+            });
+        }
+
+        modelColor.addEventListener("input", updateModelSettings);
+
+        modelScale.addEventListener("input", () => {
+            document.getElementById("scaleValue").textContent = modelScale.value;
+            updateModelSettings();
+        });
+
+        brightness.addEventListener("input", () => {
+            document.getElementById("brightnessValue").textContent = brightness.value;
+            ambientLight.intensity = Number(brightness.value);
+            updateModelSettings();
+        });
+
+        modelDepth.addEventListener("input", () => {
+            document.getElementById("depthValue").textContent = modelDepth.value;
+        });
+
+        modelDepth.addEventListener("change", () => {
+            if (currentModel) create3DModel();
+        });
+
+        modelOrientation.addEventListener("change", () => {
+            if (currentModel) create3DModel();
+        });
+
+        /* =================================
+           دانلود GLB
+        ================================= */
+
+        document.getElementById("downloadModel").addEventListener("click", () => {
+            if (!currentModel) {
+                alert("اول مدل سه‌بعدی بساز!");
+                return;
+            }
+
+            const exporter = new GLTFExporter();
+
+            exporter.parse(
+                currentModel,
+                result => {
+                    const blob = new Blob([result], {
+                        type: "model/gltf-binary"
+                    });
+
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+
+                    link.href = url;
+                    link.download = "DRAW3D-model.glb";
+                    link.click();
+
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                },
+                error => {
+                    console.error(error);
+                    alert("خطا در خروجی گرفتن مدل.");
+                },
+                { binary: true }
+            );
+        });
+
+        /* =================================
+           حلقه نمایش
+        ================================= */
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+    </script>
+
+</body>
+
+</html>
